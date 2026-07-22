@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Demo Lead AI</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f8; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 400px; }
+        h2 { margin-bottom: 20px; color: #333; text-align: center; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #4f46e5; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #4338ca; }
+        #status { text-align: center; margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Formulir Kontak Klien</h2>
+        <form id="leadForm">
+            <label>Nama Lengkap</label>
+            <input type="text" id="name" placeholder="Contoh: Budi Santoso" required>
+
+            <label>Perusahaan</label>
+            <input type="text" id="company" placeholder="Contoh: PT Maju Jaya" required>
+
+            <label>Pesan / Kebutuhan</label>
+            <textarea id="message" rows="3" placeholder="Contoh: Butuh sistem automasi n8n cepat" required></textarea>
+
+            <label>Budget</label>
+            <input type="text" id="budget" placeholder="Contoh: Rp 50 Juta" required>
+
+            <button type="submit" id="submitBtn">Kirim Pesan</button>
+        </form>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        document.getElementById('leadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const statusDiv = document.getElementById('status');
+            
+            btn.innerText = "Mengirim...";
+            btn.disabled = true;
+
+            const formData = {
+                name: document.getElementById('name').value,
+                company: document.getElementById('company').value,
+                message: document.getElementById('message').value,
+                budget: document.getElementById('budget').value
+            };
+
+            try {
+                // Ganti URL di bawah ini pakai Webhook URL n8n lu yang aktif!
+                const webhookURL = 'https://author-provoke-freefall.ngrok-free.dev/webhook-test/ai-lead-intake';
+
+                const response = await fetch(webhookURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    statusDiv.style.color = "green";
+                    statusDiv.innerText = "Berhasil! Cek Google Sheets & Slack.";
+                    document.getElementById('leadForm').reset();
+                } else {
+                    statusDiv.style.color = "red";
+                    statusDiv.innerText = "Gagal mengirim ke server.";
+                }
+            } catch (error) {
+                statusDiv.style.color = "red";
+                statusDiv.innerText = "Terjadi kesalahan koneksi.";
+            } finally {
+                btn.innerText = "Kirim Pesan";
+                btn.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+</html>
